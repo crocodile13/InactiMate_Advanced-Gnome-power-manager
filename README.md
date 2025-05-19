@@ -25,7 +25,7 @@ An interactive manager for inactivity and power-saving policies for Linux system
 ### Simple method
 ```bash
 # Download the script
-wget https://raw.githubusercontent.com/your-name/PowerPolicyManager/main/power-policy-manager.sh
+wget https://raw.githubusercontent.com/crocodile13/InactiMate_Advanced-Gnome-power-manager/main/define-inactivity-policie.sh
 # Make the script executable
 chmod +x power-policy-manager.sh
 # Run the script
@@ -35,7 +35,7 @@ chmod +x power-policy-manager.sh
 ### From source
 ```bash
 # Clone the repository
-git clone https://github.com/your-name/PowerPolicyManager.git
+git clone https://github.com/crocodile13/InactiMate_Advanced-Gnome-power-manager.git
 # Enter the directory
 cd PowerPolicyManager
 # Make the script executable
