@@ -298,9 +298,9 @@ edit_logind_action() {
   echo -e "${GREEN}✔ Modifié/ajouté dans logind.conf${NC}"
   echo -e "${YELLOW}► Redémarrage du service logind nécessaire pour appliquer les changements.${NC}"
 
-  read -p "$(echo -e "${BLUE}Redémarrer logind maintenant ? [o/N] :${NC} ")" restart
+  read -p "$(echo -e "${BLUE}Rafraîchir logind maintenant ? [o/N] :${NC} ")" restart
   if [[ "$restart" =~ ^[Oo]$ ]]; then
-    echo -e "${YELLOW}► Redémarrage de systemd-logind...${NC}"
+    echo -e "${YELLOW}► Rafraîchir systemd-logind...${NC}"
     sudo systemctl reload systemd-logind && echo -e "${GREEN}✔ Service redémarré avec succès.${NC}" || echo -e "${RED}✘ Échec du redémarrage du service.${NC}"
   fi
 
