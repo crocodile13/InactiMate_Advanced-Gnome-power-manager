@@ -18,7 +18,8 @@ An interactive manager for inactivity and power-saving policies for Linux system
 - 📤 Export configurations for backup or sharing
 
 ## 🖼️ Screenshots
-![Description de l'image](screen_term_1.png)
+![screen main menu](screen_1.png)
+![screen logind menu](screen_2.png)
 
 ## 🚀 Installation
 ### Simple method
