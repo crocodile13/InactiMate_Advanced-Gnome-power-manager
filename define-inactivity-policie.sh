@@ -26,34 +26,69 @@ fi
 
 # === VARIABLES GLOBALES ===
 SCHEMA="org.gnome.settings-daemon.plugins.power"
+SESSION_SCHEMA="org.gnome.desktop.session"
 LOGIND_CONF="/etc/systemd/logind.conf"
 TEMP_FILE="/tmp/logind.conf.tmp"
-VERSION="1.1"
+VERSION="1.2"
 
 # === CLÉS GSETTINGS COMPLÈTES (toutes versions GNOME) ===
 ALL_KEYS=(
+  # --- Détection de l'environnement ---
   "ambient-enabled"                              # capteur de lumière ambiante
+  # --- Gestion de l'écran ---
   "idle-dim"                                     # atténuer l'écran au repos
-  "idle-brightness"                              # niveau de luminosité quand idle
-  "power-saver-profile-on-low-battery"           # profil économie quand batterie faible
-  "sleep-inactive-ac-timeout"                    # délai avant arrêt sur secteur (s)
+  "idle-brightness"                              # niveau de luminosité quand inactif
+  "idle-delay"                                   # délai d'inactivité avant mise en veille (s)
+  "screen-dim-timeout"                           # délai avant atténuation de l'écran (s)
+  "screen-off-timeout"                           # délai avant extinction de l'écran (s)
+  # --- Comportement lors de l'inactivité ---
+  "sleep-inactive-ac-timeout"                    # délai avant mise en veille sur secteur (s)
   "sleep-inactive-ac-type"                       # action après délai sur secteur
-  "sleep-inactive-battery-timeout"               # délai avant arrêt sur batterie (s)
+  "sleep-inactive-battery-timeout"               # délai avant mise en veille sur batterie (s)
   "sleep-inactive-battery-type"                  # action après délai sur batterie
+  # --- Actions liées aux boutons et capot ---
   "power-button-action"                          # action appui bouton marche
   "lid-close-ac-action"                          # action fermeture capot sur secteur
   "lid-close-battery-action"                     # action fermeture capot sur batterie
   "lid-close-suspend-with-external-monitor"      # suspendre malgré écran externe
+  # --- Sécurité et verrouillage ---
+  "lock-enabled"                                 # verrouillage automatique de l'écran
+  "lock-delay"                                   # délai avant verrouillage après inactivité (s)
+  "screensaver"                                  # état du veilleur d'écran (true/false)
+  # --- Gestion de l'alimentation en cas de batterie faible ---
+  "power-saver-profile-on-low-battery"           # profil économie quand batterie faible
+)
+
+# === CLÉS DU SCHÉMA DE SESSION ===
+SESSION_KEYS=(
+  "idle-delay"                                  # délai avant mise en veille de session (s)
+)
+
+# === DESCRIPTIONS DES CLÉS DE SESSION ===
+declare -A SESSION_KEY_DESCRIPTIONS=(
+  ["idle-delay"]="Délai d'inactivité avant que l'écran se mette en veille (secondes)"
 )
 
 # === TABLE DE CORRESPONDANCE GSETTINGS → logind.conf ===
 declare -A GNOME_TO_LOGIND=(
-  ["power-button-action"]="HandlePowerKey"
-  ["sleep-inactive-ac-type"]="IdleAction"
-  ["sleep-inactive-battery-type"]="IdleAction"
-  ["lid-close-ac-action"]="HandleLidSwitchExternalPower"
-  ["lid-close-battery-action"]="HandleLidSwitch"
-  ["lid-close-suspend-with-external-monitor"]="HandleLidSwitchDocked"
+  ["ambient-enabled"]="HandlePowerKey"                              # capteur de lumière ambiante
+  ["idle-dim"]="IdleAction"                                          # atténuation de l'écran après inactivité
+  ["idle-brightness"]="IdleActionSec"                                # luminosité de l'écran une fois inactif
+  ["power-saver-profile-on-low-battery"]="IdleAction"                # profil économie d'énergie quand batterie faible
+  ["sleep-inactive-ac-timeout"]="IdleActionSec"                      # délai avant mise en veille sur secteur
+  ["sleep-inactive-ac-type"]="IdleAction"                            # action après délai sur secteur
+  ["sleep-inactive-battery-timeout"]="IdleActionSec"                 # délai avant mise en veille sur batterie
+  ["sleep-inactive-battery-type"]="IdleAction"                       # action après délai sur batterie
+  ["power-button-action"]="HandlePowerKey"                           # action lors d'un appui sur le bouton d'alimentation
+  ["lid-close-ac-action"]="HandleLidSwitchExternalPower"             # action à la fermeture du capot sur secteur
+  ["lid-close-battery-action"]="HandleLidSwitch"                     # action à la fermeture du capot sur batterie
+  ["lid-close-suspend-with-external-monitor"]="HandleLidSwitchDocked" # suspendre même si un écran externe est connecté
+  ["idle-delay"]="IdleActionSec"                                     # délai d'inactivité avant mise en veille
+  ["lock-enabled"]="IdleAction"                                      # activation du verrouillage automatique de l'écran
+  ["lock-delay"]="IdleActionSec"                                     # délai avant verrouillage de l'écran après mise en veille
+  ["screensaver"]="IdleAction"                                       # activation du veilleur d'écran
+  ["screen-dim-timeout"]="IdleActionSec"                             # délai avant atténuation progressive de l'écran
+  ["screen-off-timeout"]="IdleActionSec"                             # délai avant extinction complète de l'écran
 )
 
 # === CLÉS logind.conf COMPLÈTES (man logind.conf) ===
@@ -118,16 +153,22 @@ declare -A LOGIND_OPTIONS=(
 declare -A KEY_DESCRIPTIONS=(
   ["ambient-enabled"]="Active le capteur de lumière ambiante"
   ["idle-dim"]="Atténue l'écran après inactivité"
-  ["idle-brightness"]="Luminosité de l'écran une fois inactif"
+  ["idle-brightness"]="Luminosité de l'écran une fois inactif (%)"
   ["power-saver-profile-on-low-battery"]="Active le profil économie d'énergie quand la batterie est faible"
-  ["sleep-inactive-ac-timeout"]="Temps avant mise en veille (secteur), en secondes"
-  ["sleep-inactive-ac-type"]="Action après délai (secteur) : suspend, hibernate, nothing"
-  ["sleep-inactive-battery-timeout"]="Temps avant mise en veille (batterie), en secondes"
-  ["sleep-inactive-battery-type"]="Action après délai (batterie) : suspend, hibernate, nothing"
+  ["sleep-inactive-ac-timeout"]="Temps avant mise en veille sur secteur (secondes)"
+  ["sleep-inactive-ac-type"]="Action après délai d'inactivité sur secteur : suspend, hibernate, nothing"
+  ["sleep-inactive-battery-timeout"]="Temps avant mise en veille sur batterie (secondes)"
+  ["sleep-inactive-battery-type"]="Action après délai d'inactivité sur batterie : suspend, hibernate, nothing"
   ["power-button-action"]="Action lors d'un appui sur le bouton d'alimentation"
-  ["lid-close-ac-action"]="Action à la fermeture du capot (secteur)"
-  ["lid-close-battery-action"]="Action à la fermeture du capot (batterie)"
+  ["lid-close-ac-action"]="Action à la fermeture du capot sur secteur"
+  ["lid-close-battery-action"]="Action à la fermeture du capot sur batterie"
   ["lid-close-suspend-with-external-monitor"]="Suspendre même si un écran externe est connecté"
+  ["idle-delay"]="Délai d'inactivité avant que l'écran se mette en veille (secondes)"
+  ["lock-enabled"]="Activation du verrouillage automatique de l'écran"
+  ["lock-delay"]="Délai avant verrouillage de l'écran après mise en veille (secondes)"
+  ["screensaver"]="Activation du veilleur d'écran (true/false)"
+  ["screen-dim-timeout"]="Délai avant atténuation progressive de l'écran (secondes)"
+  ["screen-off-timeout"]="Délai avant extinction complète de l'écran (secondes)"
 )
 
 # === DESCRIPTIONS logind.conf ===
@@ -215,14 +256,19 @@ format_time_seconds() {
 
 # Vérifie si une clé GSettings existe
 key_exists() {
-  gsettings list-keys "$SCHEMA" 2>/dev/null | grep -qx "$1"
+  local key=$1
+  local schema=${2:-$SCHEMA}  # Utilise SCHEMA par défaut si non spécifié
+  
+  gsettings list-keys "$schema" 2>/dev/null | grep -qx "$key"
 }
 
 # Obtient la valeur actuelle d'une clé GSettings
 get_current_value() {
   local key=$1
+  local schema=${2:-$SCHEMA}  # Utilise SCHEMA par défaut si non spécifié
   local val
-  val=$(gsettings get "$SCHEMA" "$key" 2>/dev/null)
+  
+  val=$(gsettings get "$schema" "$key" 2>/dev/null)
   
   # Si c'est une string entourée de quotes, on enlève les quotes
   if [[ "$val" =~ ^\'.*\'$ ]]; then
@@ -232,10 +278,10 @@ get_current_value() {
   fi
   
   # Formatage des valeurs temporelles pour une meilleure lisibilité
-  if [[ "$key" == *timeout* && "$val" =~ ^[0-9]+$ ]]; then
-    CURRENT_VALUES["$key"]="$val ($(format_time_seconds "$val"))"
+  if [[ "$key" == *"delay"* || "$key" == *"timeout"* ]] && [[ "$val" =~ ^[0-9]+$ ]]; then
+    CURRENT_VALUES["${schema}:${key}"]="$val ($(format_time_seconds "$val"))"
   else
-    CURRENT_VALUES["$key"]="$val"
+    CURRENT_VALUES["${schema}:${key}"]="$val"
   fi
 }
 
@@ -327,34 +373,51 @@ confirm_and_run() {
 
 # Configure un paramètre (GSettings ou logind)
 set_parameter() {
-  local key="$1"
+  local param="$1"
+  local schema="$SCHEMA"  # Par défaut
+  local key="$param"
+  
+  # Si le paramètre contient ":", alors c'est schema:key
+  if [[ "$param" == *":"* ]]; then
+    schema=$(echo "$param" | cut -d':' -f1)
+    key=$(echo "$param" | cut -d':' -f2)
+  fi
   
   # Afficher l'en-tête
   show_header "Configuration du paramètre"
   
-  if key_exists "$key"; then
-    echo -e "${CYAN}➤ [GSettings] Paramètre : $key${NC}"
-    echo -e "${YELLOW}Description : ${KEY_DESCRIPTIONS[$key]:-Aucune description disponible}${NC}"
-    echo -e "${GREEN}Valeur actuelle : ${CURRENT_VALUES[$key]}${NC}"
+  if key_exists "$key" "$schema"; then
+    echo -e "${CYAN}➤ [GSettings] Paramètre : $key (Schéma: $schema)${NC}"
+    
+    # Choisir la bonne description selon le schéma
+    local description=""
+    if [[ "$schema" == "$SESSION_SCHEMA" ]]; then
+      description="${SESSION_KEY_DESCRIPTIONS[$key]:-Aucune description disponible}"
+    else
+      description="${KEY_DESCRIPTIONS[$key]:-Aucune description disponible}"
+    fi
+    
+    echo -e "${YELLOW}Description : $description${NC}"
+    echo -e "${GREEN}Valeur actuelle : ${CURRENT_VALUES["$schema:$key"]}${NC}"
     
     # Afficher des informations supplémentaires selon le type de paramètre
-    if [[ "$key" == *timeout* ]]; then
+    if [[ "$key" == *"delay"* || "$key" == *"timeout"* ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}entier (secondes)${NC}"
       echo -e "${DIM}Exemples: 60 (1 minute), 300 (5 minutes), 1800 (30 minutes), 3600 (1 heure)${NC}"
-    elif [[ "$key" == *type* || "$key" == *action* ]]; then
+    elif [[ "$key" == *"type"* || "$key" == *"action"* ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}chaîne${NC}"
       echo -e "${DIM}Valeurs typiques: suspend, hibernate, nothing, poweroff, interactive${NC}"
-    elif [[ "$key" == *enabled* || "$key" == *-dim ]]; then
+    elif [[ "$key" == *"enabled"* || "$key" == *"-dim" ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}booléen${NC}"
       echo -e "${DIM}Valeurs: true, false${NC}"
-    elif [[ "$key" == *brightness* ]]; then
+    elif [[ "$key" == *"brightness"* ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}double${NC}"
       echo -e "${DIM}Valeurs: 0.0 - 1.0${NC}"
     fi
     
     read -p "$(echo -e "${BLUE}Nouvelle valeur : ${NC}")" new_val
     if [[ -n "$new_val" ]]; then
-      confirm_and_run "gsettings set $SCHEMA $key '$new_val'" "Mise à jour GSettings"
+      confirm_and_run "gsettings set $schema $key '$new_val'" "Mise à jour GSettings"
     else
       echo -e "${RED}✘ Opération annulée - valeur vide${NC}"
       read -p "$(echo -e "${DIM}Appuyer sur Entrée pour continuer...${NC}")"
@@ -391,12 +454,23 @@ load_keys() {
   AVAILABLE_KEYS=()
   MISSING_KEYS=()
   
+  # Chargement des clés du schéma principal
   for key in "${ALL_KEYS[@]}"; do
     if key_exists "$key"; then
-      AVAILABLE_KEYS+=("$key")
+      AVAILABLE_KEYS+=("$SCHEMA:$key")
       get_current_value "$key"
     else
-      MISSING_KEYS+=("$key")
+      MISSING_KEYS+=("$SCHEMA:$key")
+    fi
+  done
+  
+  # Chargement des clés du schéma de session
+  for key in "${SESSION_KEYS[@]}"; do
+    if key_exists "$key" "$SESSION_SCHEMA"; then
+      AVAILABLE_KEYS+=("$SESSION_SCHEMA:$key")
+      get_current_value "$key" "$SESSION_SCHEMA"
+    else
+      MISSING_KEYS+=("$SESSION_SCHEMA:$key")
     fi
   done
 }
@@ -511,11 +585,23 @@ export_config() {
   echo "# Système: $SYSTEM_INFO" >> "$export_file"
   echo "" >> "$export_file"
   
-  # Exporter les paramètres GSettings
+  # Exporter les paramètres du schéma principal
   echo "[GSettings: $SCHEMA]" >> "$export_file"
-  for key in "${AVAILABLE_KEYS[@]}"; do
-    value=$(gsettings get "$SCHEMA" "$key" 2>/dev/null)
-    echo "$key = $value" >> "$export_file"
+  for key in "${ALL_KEYS[@]}"; do
+    if key_exists "$key"; then
+      value=$(gsettings get "$SCHEMA" "$key" 2>/dev/null)
+      echo "$key = $value" >> "$export_file"
+    fi
+  done
+  
+  # Exporter les paramètres du schéma de session
+  echo "" >> "$export_file"
+  echo "[GSettings: $SESSION_SCHEMA]" >> "$export_file"
+  for key in "${SESSION_KEYS[@]}"; do
+    if key_exists "$key" "$SESSION_SCHEMA"; then
+      value=$(gsettings get "$SESSION_SCHEMA" "$key" 2>/dev/null)
+      echo "$key = $value" >> "$export_file"
+    fi
   done
   
   # Exporter les paramètres logind si le fichier existe
@@ -634,6 +720,11 @@ quick_laptop_config() {
       echo -e "${GREEN}✔ Profil d'économie d'énergie sur batterie faible: activé${NC}"
     fi
     
+    if key_exists "idle-delay" "$SESSION_SCHEMA"; then
+      gsettings set "$SESSION_SCHEMA" "idle-delay" 600
+      echo -e "${GREEN}✔ Délai d'inactivité de session: 10 minutes${NC}"
+    fi
+
     echo -e "${GREEN}✅ Configuration pour portable appliquée avec succès!${NC}"
   else
     echo -e "${RED}✘ Configuration annulée${NC}"
@@ -679,7 +770,12 @@ quick_desktop_config() {
       gsettings set "$SCHEMA" "idle-dim" 'true'
       echo -e "${GREEN}✔ Atténuation de l'écran en cas d'inactivité: activée${NC}"
     fi
-    
+
+    if key_exists "idle-delay" "$SESSION_SCHEMA"; then
+      gsettings set "$SESSION_SCHEMA" "idle-delay" 1800
+      echo -e "${GREEN}✔ Délai d'inactivité de session: 30 minutes${NC}"
+    fi
+
     echo -e "${GREEN}✅ Configuration pour PC fixe appliquée avec succès!${NC}"
   else
     echo -e "${RED}✘ Configuration annulée${NC}"
@@ -710,15 +806,23 @@ main_menu() {
     
     i=1
     declare -A MENU
-    for key in "${AVAILABLE_KEYS[@]}"; do
-      MENU[$i]="$key"
-      printf "%-3s ${YELLOW}%-42s${NC} ${GREEN}%-35s${NC}\n" "$i)" "$key" "${CURRENT_VALUES[$key]}"
+    for param in "${AVAILABLE_KEYS[@]}"; do
+      MENU[$i]="$param"
+      # Extraire le schema et la clé
+      schema=$(echo "$param" | cut -d':' -f1)
+      key=$(echo "$param" | cut -d':' -f2)
+      
+      # Afficher différemment selon le schéma
+      if [[ "$schema" == "$SESSION_SCHEMA" ]]; then
+        printf "%-3s ${PURPLE}%-42s${NC} ${GREEN}%-35s${NC}\n" "$i)" "$key" "${CURRENT_VALUES["$schema:$key"]}"
+      else
+        printf "%-3s ${YELLOW}%-42s${NC} ${GREEN}%-35s${NC}\n" "$i)" "$key" "${CURRENT_VALUES["$schema:$key"]}"
+      fi
       ((i++))
     done
 
     echo -e "\n${BOLD}${UNDERLINE}Options:${NC}"
     echo -e "${CYAN}───────────────────────────────────────────────────────────────────────────${NC}"
-    
     MENU[$i]="show_missing"
     echo -e "$i) ${BLUE}Afficher les paramètres GNOME manquants${NC}"
     ((i++))
@@ -868,12 +972,10 @@ check_requirements() {
     exit 1
   fi
   
-  # Vérifier les permissions sudo sans demander de mot de passe
-  if ! sudo -n true 2>/dev/null; then
-    echo -e "${YELLOW}⚠ Ce script nécessite des privilèges administrateur pour modifier logind.conf${NC}"
-    echo -e "${YELLOW}⚠ Vous pourrez être invité à saisir votre mot de passe pendant l'exécution${NC}"
-    sudo true || { echo -e "${RED}✘ Échec d'authentification sudo, certaines fonctionnalités seront limitées.${NC}"; }
-  fi
+  # Ne pas vérifier sudo à l'avance, seulement informer
+  echo -e "${YELLOW}⚠ Ce script nécessite des privilèges administrateur pour certaines opérations${NC}"
+  echo -e "${YELLOW}⚠ Vous pourrez être invité à saisir votre mot de passe lors de l'utilisation des fonctions nécessitant sudo${NC}"
+  sleep 2
 }
 
 # === EXÉCUTION PRINCIPALE ===
