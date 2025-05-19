@@ -777,7 +777,7 @@ main_menu() {
           echo
         fi
         
-        echo -e "${BOLD}${UNDERLINE}Clés logind.conf disponibles:${NC}"
+	echo -e "${BOLD}${UNDERLINE}Clés logind.conf disponibles (décommentez celles que vous voulez voir affichées dans /etc/systemd/logind.conf) :${NC}"
         for key in "${ALL_LOGIND_KEYS[@]}"; do
           local current_val=$(get_logind_value "$key")
           local desc="${LOGIND_DESCRIPTIONS[$key]}"
