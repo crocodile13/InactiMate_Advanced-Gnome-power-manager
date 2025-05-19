@@ -64,29 +64,26 @@ The interface is fully interactive and guided. After launching the script, you c
 - Behavior when closing the laptop lid
 - Screen dimming during inactivity
 - Power-saving profile on low battery
+- [...]
 
 ### systemd-logind Settings
 - Actions when pressing the power button
 - Actions when closing the laptop lid (with or without external screen)
 - Actions after prolonged inactivity
 - Behavior of sleep/hibernation keys
+- [...]
 
-## 🔍 Usage Tips
-- On a laptop, favor short delays on battery (5-10 minutes)
-- To save battery, use the "suspend" action after inactivity
-- For security, configure at least screen locking
-- On a desktop PC, longer delays are generally preferable
+## 🔄 GNOME vs logind — Who controls what?
+
+GNOME acts as a higher-level layer above `systemd-logind`, intercepting and managing most power-related events (inactivity, power button, lid close, etc.).  
+This means that **within a GNOME session**, its own settings (`gsettings`) **take precedence** over those of `logind`.
+
+> Conversely, **outside of GNOME** (tty, Wayland session without gnome-settings-daemon, etc.), **logind** takes over.
+
+PowerPolicyManager lets you configure **both layers**, including settings **not exposed by the GNOME interface**, giving you full control over power management.
 
 ## 🤝 Contribution
-Contributions are welcome! Feel free to:
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-This project is distributed under the MIT license. See the `LICENSE` file for more information.
+Contributions are welcome if you want!
 
 ## 🙏 Acknowledgements
 AI lol! (Claude 3.7 Sonnet and GPT4o) was a great help as you probably see from the code, it gets the job done...
