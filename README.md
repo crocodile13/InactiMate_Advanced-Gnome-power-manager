@@ -44,7 +44,7 @@ chmod +x power-policy-manager.sh
 ```
 
 ## 📝 Prerequisites
-- A Linux system with GNOME and/or systemd
+- A Linux system with GNOME and systemd (it could work with just gnome or just systemd i did't try)
 - The `gsettings-desktop-schemas` or `gnome-settings-daemon` package
 - Sudo rights to modify systemd-logind settings
 
