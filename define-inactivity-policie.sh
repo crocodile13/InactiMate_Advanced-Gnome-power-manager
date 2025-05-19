@@ -693,9 +693,9 @@ main_menu() {
 
     clear
     echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════════════════════════════════════╗"
-    echo -e "║                GESTIONNAIRE DE POLITIQUES D'INACTIVITÉ                 ║"
+    echo -e "║                GESTIONNAIRE DE POLITIQUES D'INACTIVITÉ                   ║"
     echo -e "╠══════════════════════════════════════════════════════════════════════════╣"
-    echo -e "║ ${GREEN}v${VERSION}${BLUE}                                                               ║"
+    echo -e "║ ${GREEN}v${VERSION}${BLUE}                                                                     ║"
     echo -e "${BLUE}╚══════════════════════════════════════════════════════════════════════════╝${NC}"
     echo -e "${DIM}$SYSTEM_INFO${NC}\n"
 
@@ -899,4 +899,3 @@ main() {
 
 # Démarrer le script
 main
-
