@@ -1,114 +1,92 @@
 # PowerPolicyManager
-
-Un gestionnaire interactif de politiques d'inactivité et d'économie d'énergie pour les systèmes Linux, permettant de configurer rapidement et facilement les comportements de mise en veille, d'hibernation, et de gestion d'alimentation. Je l'ai concu pour Archlinux pour me simplifier la vie, mais ca doit fonctionner avec n'importe quel environement gnome+systemd je penses. L'IA (claude 3.7 sonnet et GPT4o) a ete d'une grande aide comme vous le voyez surement au code, ca fait le travail...
+An interactive manager for inactivity and power-saving policies for Linux systems, allowing quick and easy configuration of sleep, hibernation, and power management behaviors. I designed it for Archlinux to simplify my life, but it should work with any gnome+systemd environment I think. AI (Claude 3.7 Sonnet and GPT4o) was a great help as you probably see from the code, it gets the job done...
 
 ![Version](https://img.shields.io/badge/version-1.1-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux-green.svg)
 ![GNOME](https://img.shields.io/badge/GNOME-Compatible-orange.svg)
 ![systemd](https://img.shields.io/badge/systemd-Compatible-purple.svg)
 
-## 📋 Fonctionnalités
+## 📋 Features
+- ⚡ Complete configuration of GNOME power-saving settings
+- 🔄 Management of behaviors on battery and when plugged in
+- 💤 Configuration of actions when closing the laptop lid
+- ⏱️ Setting sleep delay timers
+- 🛠️ Configuration of systemd-logind (power button actions, etc.)
+- 📱 Preconfigured profiles for laptops and desktop PCs
+- 📤 Export configurations for backup or sharing
 
-- ⚡ Configuration complète des paramètres d'économie d'énergie GNOME
-- 🔄 Gestion des comportements sur batterie et sur secteur
-- 💤 Configuration des actions à la fermeture du capot
-- ⏱️ Paramétrage des délais de mise en veille
-- 🛠️ Configuration de systemd-logind (actions sur bouton d'alimentation, etc.)
-- 📱 Profils préconfigurés pour portables et PC fixes
-- 📤 Export des configurations pour sauvegarde ou partage
-
-## 🖼️ Captures d'écran
-
+## 🖼️ Screenshots
 <center>
-<em>Menu principal de l'application</em>
+<em>Main application menu</em>
 </center>
 
 ## 🚀 Installation
-
-### Méthode simple
-
+### Simple method
 ```bash
-# Télécharger le script
-wget https://raw.githubusercontent.com/votre-nom/PowerPolicyManager/main/power-policy-manager.sh
-
-# Rendre le script exécutable
+# Download the script
+wget https://raw.githubusercontent.com/your-name/PowerPolicyManager/main/power-policy-manager.sh
+# Make the script executable
 chmod +x power-policy-manager.sh
-
-# Lancer le script
+# Run the script
 ./power-policy-manager.sh
 ```
 
-### Depuis les sources
-
+### From source
 ```bash
-# Cloner le dépôt
-git clone https://github.com/votre-nom/PowerPolicyManager.git
-
-# Entrer dans le répertoire
+# Clone the repository
+git clone https://github.com/your-name/PowerPolicyManager.git
+# Enter the directory
 cd PowerPolicyManager
-
-# Rendre le script exécutable
+# Make the script executable
 chmod +x power-policy-manager.sh
-
-# Lancer le script
+# Run the script
 ./power-policy-manager.sh
 ```
 
-## 📝 Prérequis
+## 📝 Prerequisites
+- A Linux system with GNOME and/or systemd
+- The `gsettings-desktop-schemas` or `gnome-settings-daemon` package
+- Sudo rights to modify systemd-logind settings
 
-- Un système Linux avec GNOME et/ou systemd
-- Le paquet `gsettings-desktop-schemas` ou `gnome-settings-daemon`
-- Droits sudo pour modifier les paramètres systemd-logind
+## 🔧 Usage
+The interface is fully interactive and guided. After launching the script, you can:
+1. Browse the settings available on your system
+2. Individually modify each setting
+3. Apply predefined configurations (laptop or desktop PC)
+4. View configuration tips adapted to your hardware
+5. Export your current configuration
 
-## 🔧 Utilisation
+## 📚 Configurable Settings
+### GNOME Settings
+- Sleep delay timers (when plugged in and on battery)
+- Actions after inactivity (sleep, hibernation, shutdown...)
+- Behavior when closing the laptop lid
+- Screen dimming during inactivity
+- Power-saving profile on low battery
 
-L'interface est entièrement interactive et guidée. Après avoir lancé le script, vous pourrez :
+### systemd-logind Settings
+- Actions when pressing the power button
+- Actions when closing the laptop lid (with or without external screen)
+- Actions after prolonged inactivity
+- Behavior of sleep/hibernation keys
 
-1. Parcourir les paramètres disponibles sur votre système
-2. Modifier individuellement chaque paramètre
-3. Appliquer des configurations prédéfinies (portable ou PC fixe)
-4. Consulter des conseils de configuration adaptés à votre matériel
-5. Exporter votre configuration actuelle
-
-## 📚 Paramètres configurables
-
-### Paramètres GNOME
-
-- Délais de mise en veille (secteur et batterie)
-- Actions après inactivité (veille, hibernation, extinction...)
-- Comportement à la fermeture du capot
-- Atténuation de l'écran en cas d'inactivité
-- Profil d'économie d'énergie sur batterie faible
-
-### Paramètres systemd-logind
-
-- Actions sur pression du bouton d'alimentation
-- Actions sur fermeture du capot (avec ou sans écran externe)
-- Actions après inactivité prolongée
-- Comportement des touches de mise en veille/hibernation
-
-## 🔍 Conseils d'utilisation
-
-- Sur un portable, privilégiez des délais courts sur batterie (5-10 minutes)
-- Pour économiser la batterie, utilisez l'action "suspend" après inactivité
-- Pour la sécurité, configurez au moins le verrouillage de l'écran
-- Sur un PC fixe, des délais plus longs sont généralement préférables
+## 🔍 Usage Tips
+- On a laptop, favor short delays on battery (5-10 minutes)
+- To save battery, use the "suspend" action after inactivity
+- For security, configure at least screen locking
+- On a desktop PC, longer delays are generally preferable
 
 ## 🤝 Contribution
+Contributions are welcome! Feel free to:
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Les contributions sont les bienvenues ! N'hésitez pas à :
+## 📄 License
+This project is distributed under the MIT license. See the `LICENSE` file for more information.
 
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est distribué sous licence MIT. Voir le fichier `LICENSE` pour plus d'informations.
-
-## 🙏 Remerciements
-
-- Merci à la communauté GNOME pour la documentation sur GSettings
-- Merci à la communauté systemd pour la documentation sur logind.conf
+## 🙏 Acknowledgements
+- Thanks to the GNOME community for the documentation on GSettings
+- Thanks to the systemd community for the documentation on logind.conf
