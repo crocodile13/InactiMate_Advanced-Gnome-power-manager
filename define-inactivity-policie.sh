@@ -257,9 +257,9 @@ edit_logind_action() {
   local key=$1 val=$2
   local temp_file=$(mktemp)
   local found=0
-  
+
   echo -e "\n${YELLOW}[LOGIND]${NC} Configuration: ${CYAN}${key}=${val}${NC}"
-  
+
   # Vérifier si le fichier existe
   if [ ! -f "$LOGIND_CONF" ]; then
     echo -e "${RED}✘ Fichier $LOGIND_CONF n'existe pas.${NC}"
@@ -267,17 +267,21 @@ edit_logind_action() {
     sudo mkdir -p "$(dirname "$LOGIND_CONF")"
     echo "[Login]" | sudo tee "$LOGIND_CONF" > /dev/null
   fi
-  
-  # Lire le fichier et remplacer ou décommenter la ligne si elle existe
-  cat "$LOGIND_CONF" | while IFS= read -r line; do
+
+  # Utiliser grep pour vérifier si la clé existe déjà
+  grep -q "^#\?\s*${key}=" "$LOGIND_CONF" 2>/dev/null && found=1
+
+  # Lire le fichier et traiter chaque ligne
+  while IFS= read -r line; do
     if [[ "$line" =~ ^#?[[:space:]]*"$key"= ]]; then
+      # Remplacer la ligne avec la nouvelle valeur
       echo "$key=$val" >> "$temp_file"
-      found=1
     else
+      # Conserver les autres lignes
       echo "$line" >> "$temp_file"
     fi
-  done
-  
+  done < "$LOGIND_CONF"
+
   # Si la clé n'a pas été trouvée, l'ajouter à la fin
   if [ "$found" -eq 0 ]; then
     # S'assurer qu'il y a une section [Login]
@@ -286,20 +290,20 @@ edit_logind_action() {
     fi
     echo "$key=$val" >> "$temp_file"
   fi
-  
+
   # Appliquer les modifications
   sudo cp "$temp_file" "$LOGIND_CONF"
   rm "$temp_file"
-  
+
   echo -e "${GREEN}✔ Modifié/ajouté dans logind.conf${NC}"
   echo -e "${YELLOW}► Redémarrage du service logind nécessaire pour appliquer les changements.${NC}"
-  
+
   read -p "$(echo -e "${BLUE}Redémarrer logind maintenant ? [o/N] :${NC} ")" restart
   if [[ "$restart" =~ ^[Oo]$ ]]; then
     echo -e "${YELLOW}► Redémarrage de systemd-logind...${NC}"
-    sudo systemctl restart systemd-logind && echo -e "${GREEN}✔ Service redémarré avec succès.${NC}" || echo -e "${RED}✘ Échec du redémarrage du service.${NC}"
+    sudo systemctl reload systemd-logind && echo -e "${GREEN}✔ Service redémarré avec succès.${NC}" || echo -e "${RED}✘ Échec du redémarrage du service.${NC}"
   fi
-  
+
   read -p "$(echo -e "${DIM}Appuyer sur Entrée pour continuer...${NC}")"
 }
 
