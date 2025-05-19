@@ -1,6 +1,6 @@
 # PowerPolicyManager
 
-Un gestionnaire interactif de politiques d'inactivité et d'économie d'énergie pour les systèmes Linux, permettant de configurer rapidement et facilement les comportements de mise en veille, d'hibernation, et de gestion d'alimentation.
+Un gestionnaire interactif de politiques d'inactivité et d'économie d'énergie pour les systèmes Linux, permettant de configurer rapidement et facilement les comportements de mise en veille, d'hibernation, et de gestion d'alimentation. Je l'ai concu pour arch pour me simplifier la vie, mais ca doit marcher avec nimporte quel environement gnome+systemd je penses. L'IA (claude 3.7 sonnet et GPT4o) a ete d'une grande aide comme vous le voyez surement au code, ca fait le travail...
 
 ![Version](https://img.shields.io/badge/version-1.1-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux-green.svg)
