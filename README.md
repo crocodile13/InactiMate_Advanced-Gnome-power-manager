@@ -19,7 +19,7 @@ An interactive manager for inactivity and power-saving policies for Linux system
 
 ## 🖼️ Screenshots
 <center>
-<em>Main application menu</em>
+<em>screen_term.png</em>
 </center>
 
 ## 🚀 Installation
