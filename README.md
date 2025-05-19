@@ -1,5 +1,5 @@
 # PowerPolicyManager
-An interactive manager for inactivity and power-saving policies for Linux systems, allowing quick and easy configuration of sleep, hibernation, and power management behaviors. I designed it for Archlinux to simplify my life, but it should work with any gnome+systemd environment I think. AI (Claude 3.7 Sonnet and GPT4o) was a great help as you probably see from the code, it gets the job done...
+An interactive manager for inactivity and power-saving policies for Linux systems, allowing quick and easy configuration of sleep, hibernation, and power management behaviors. I designed it for Archlinux to simplify my life, but it should work with any gnome+systemd environment I think.
 
 ⚠️ For optimal functionality, ensure that no other power management tools are running that might interfere with these settings.
 
@@ -88,5 +88,4 @@ Contributions are welcome! Feel free to:
 This project is distributed under the MIT license. See the `LICENSE` file for more information.
 
 ## 🙏 Acknowledgements
-- Thanks to the GNOME community for the documentation on GSettings
-- Thanks to the systemd community for the documentation on logind.conf
+AI lol! (Claude 3.7 Sonnet and GPT4o) was a great help as you probably see from the code, it gets the job done...
