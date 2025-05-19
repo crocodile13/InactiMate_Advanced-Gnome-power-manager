@@ -66,7 +66,7 @@ SESSION_KEYS=(
 
 # === DESCRIPTIONS DES CLÉS DE SESSION ===
 declare -A SESSION_KEY_DESCRIPTIONS=(
-  ["idle-delay"]="Délai d'inactivité avant que l'écran se mette en veille (secondes)"
+  ["idle-delay"]="Délai d'inactivité avant que l'écran se mette en veille (secondes, 0 = désactivé)"
 )
 
 # === TABLE DE CORRESPONDANCE GSETTINGS → logind.conf ===
@@ -131,40 +131,47 @@ ALL_LOGIND_KEYS=(
 
 # === VALEURS POSSIBLES POUR logind.conf ===
 declare -A LOGIND_OPTIONS=(
-  ["HandlePowerKey"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep"
-  ["HandlePowerKeyLongPress"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep"
-  ["HandleSuspendKey"]="ignore suspend hibernate hybrid-sleep"
-  ["HandleSuspendKeyLongPress"]="ignore suspend hibernate hybrid-sleep"
-  ["HandleHibernateKey"]="ignore hibernate hybrid-sleep"
-  ["HandleHibernateKeyLongPress"]="ignore hibernate hybrid-sleep"
+  ["HandlePowerKey"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandlePowerKeyLongPress"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleSuspendKey"]="ignore suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleSuspendKeyLongPress"]="ignore suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleHibernateKey"]="ignore hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleHibernateKeyLongPress"]="ignore hibernate hybrid-sleep suspend-then-hibernate lock"
   ["HandleRebootKey"]="ignore reboot"
   ["HandleRebootKeyLongPress"]="ignore reboot"
-  ["HandleLidSwitch"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep lock"
-  ["HandleLidSwitchExternalPower"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep lock"
-  ["HandleLidSwitchDocked"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep lock"
-  ["IdleAction"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep lock"
+  ["HandleLidSwitch"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleLidSwitchExternalPower"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["HandleLidSwitchDocked"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["IdleAction"]="ignore poweroff reboot halt kexec suspend hibernate hybrid-sleep suspend-then-hibernate lock"
+  ["PowerKeyIgnoreInhibited"]="yes no"
+  ["SuspendKeyIgnoreInhibited"]="yes no"
+  ["HibernateKeyIgnoreInhibited"]="yes no"
+  ["LidSwitchIgnoreInhibited"]="yes no"
+  ["RebootKeyIgnoreInhibited"]="yes no"
+  ["KillUserProcesses"]="yes no"
+  ["RemoveIPC"]="yes no"
   # pour les clés temps / numériques, pas de liste : on laisse vide ou on indique 'seconds'
   ["IdleActionSec"]="seconds"
   ["HoldoffTimeoutSec"]="seconds"
-  ["UserStopDelaySec"]="seconds"
+  ["UserStopDelaySec"]="seconds/infinity"
+  ["StopIdleSessionSec"]="seconds/infinity"
 )
-
 # === DESCRIPTIONS GSETTINGS ===
 declare -A KEY_DESCRIPTIONS=(
-  ["ambient-enabled"]="Active le capteur de lumière ambiante"
-  ["idle-dim"]="Atténue l'écran après inactivité"
-  ["idle-brightness"]="Luminosité de l'écran une fois inactif (%)"
-  ["power-saver-profile-on-low-battery"]="Active le profil économie d'énergie quand la batterie est faible"
+  ["ambient-enabled"]="Active le capteur de lumière ambiante (true/false)"
+  ["idle-dim"]="Atténue l'écran après inactivité (true/false)"
+  ["idle-brightness"]="Luminosité de l'écran une fois inactif (0.0 - 1.0)"
+  ["power-saver-profile-on-low-battery"]="Active le profil économie d'énergie quand la batterie est faible (true/false)"
   ["sleep-inactive-ac-timeout"]="Temps avant mise en veille sur secteur (secondes)"
-  ["sleep-inactive-ac-type"]="Action après délai d'inactivité sur secteur : suspend, hibernate, nothing"
+  ["sleep-inactive-ac-type"]="Action après délai d'inactivité sur secteur : nothing, suspend, hibernate, shutdown"
   ["sleep-inactive-battery-timeout"]="Temps avant mise en veille sur batterie (secondes)"
-  ["sleep-inactive-battery-type"]="Action après délai d'inactivité sur batterie : suspend, hibernate, nothing"
-  ["power-button-action"]="Action lors d'un appui sur le bouton d'alimentation"
-  ["lid-close-ac-action"]="Action à la fermeture du capot sur secteur"
-  ["lid-close-battery-action"]="Action à la fermeture du capot sur batterie"
-  ["lid-close-suspend-with-external-monitor"]="Suspendre même si un écran externe est connecté"
+  ["sleep-inactive-battery-type"]="Action après délai d'inactivité sur batterie : nothing, suspend, hibernate, shutdown"
+  ["power-button-action"]="Action lors d'un appui sur le bouton d'alimentation : nothing, suspend, hibernate, shutdown, interactive"
+  ["lid-close-ac-action"]="Action à la fermeture du capot sur secteur : nothing, suspend, hibernate, shutdown"
+  ["lid-close-battery-action"]="Action à la fermeture du capot sur batterie : nothing, suspend, hibernate, shutdown"
+  ["lid-close-suspend-with-external-monitor"]="Suspendre même si un écran externe est connecté (true/false)"
   ["idle-delay"]="Délai d'inactivité avant que l'écran se mette en veille (secondes)"
-  ["lock-enabled"]="Activation du verrouillage automatique de l'écran"
+  ["lock-enabled"]="Activation du verrouillage automatique de l'écran (true/false)"
   ["lock-delay"]="Délai avant verrouillage de l'écran après mise en veille (secondes)"
   ["screensaver"]="Activation du veilleur d'écran (true/false)"
   ["screen-dim-timeout"]="Délai avant atténuation progressive de l'écran (secondes)"
@@ -173,42 +180,41 @@ declare -A KEY_DESCRIPTIONS=(
 
 # === DESCRIPTIONS logind.conf ===
 declare -A LOGIND_DESCRIPTIONS=(
-  ["HandlePowerKey"]="Définit l'action du bouton d'alimentation"
-  ["HandlePowerKeyLongPress"]="Action pour un appui long sur le bouton d'alimentation"
-  ["HandleSuspendKey"]="Action sur la touche de suspension"
-  ["HandleSuspendKeyLongPress"]="Action sur un appui long de la touche suspension"
-  ["HandleHibernateKey"]="Action sur la touche d'hibernation"
-  ["HandleHibernateKeyLongPress"]="Action sur un appui long de la touche d'hibernation"
-  ["HandleRebootKey"]="Action sur la touche de redémarrage"
-  ["HandleRebootKeyLongPress"]="Action sur un appui long de la touche de redémarrage"
-  ["HandleLidSwitch"]="Action à la fermeture du capot (toutes sources d'alimentation)"
-  ["HandleLidSwitchExternalPower"]="Action à la fermeture du capot (secteur uniquement)"
-  ["HandleLidSwitchDocked"]="Action si le capot est fermé et un écran externe est connecté"
-  ["IdleAction"]="Action après période d'inactivité (suspend, hibernate, nothing)"
+  ["HandlePowerKey"]="Définit l'action du bouton d'alimentation : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
+  ["HandlePowerKeyLongPress"]="Action pour un appui long sur le bouton d'alimentation : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
+  ["HandleSuspendKey"]="Action sur la touche de suspension : ignore, suspend, hibernate, hybrid-sleep"
+  ["HandleSuspendKeyLongPress"]="Action sur un appui long de la touche suspension : ignore, suspend, hibernate, hybrid-sleep"
+  ["HandleHibernateKey"]="Action sur la touche d'hibernation : ignore, hibernate, hybrid-sleep"
+  ["HandleHibernateKeyLongPress"]="Action sur un appui long de la touche d'hibernation : ignore, hibernate, hybrid-sleep"
+  ["HandleRebootKey"]="Action sur la touche de redémarrage : ignore, reboot"
+  ["HandleRebootKeyLongPress"]="Action sur un appui long de la touche de redémarrage : ignore, reboot"
+  ["HandleLidSwitch"]="Action à la fermeture du capot (toutes sources d'alimentation) : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
+  ["HandleLidSwitchExternalPower"]="Action à la fermeture du capot (secteur uniquement) : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
+  ["HandleLidSwitchDocked"]="Action si le capot est fermé et un écran externe est connecté : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
+  ["IdleAction"]="Action après période d'inactivité : ignore, poweroff, reboot, halt, kexec, suspend, hibernate, hybrid-sleep, lock"
   ["IdleActionSec"]="Temps avant déclenchement de l'action d'inactivité (ex: 10min, 1h)"
-  ["LidSwitchIgnoreInhibited"]="Ignore les inhibitions de capot (ex: vidéos plein écran)"
-  ["PowerKeyIgnoreInhibited"]="Ignore les inhibitions du bouton d'alimentation"
-  ["SuspendKeyIgnoreInhibited"]="Ignore les inhibitions de la touche de suspension"
-  ["HibernateKeyIgnoreInhibited"]="Ignore les inhibitions de la touche d'hibernation"
-  ["RebootKeyIgnoreInhibited"]="Ignore les inhibitions de la touche de redémarrage"
-  ["NAutoVTs"]="Nombre de consoles virtuelles à créer automatiquement"
-  ["ReserveVT"]="Quel TTY est réservé pour Xorg"
-  ["KillUserProcesses"]="Tue les processus utilisateur à la fermeture de session"
-  ["KillOnlyUsers"]="Utilisateurs affectés par KillUserProcesses"
-  ["KillExcludeUsers"]="Utilisateurs exclus de KillUserProcesses"
-  ["InhibitDelayMaxSec"]="Délai maximal autorisé avant action inhibée"
-  ["UserStopDelaySec"]="Délai avant arrêt des sessions utilisateur"
-  ["SleepOperation"]="Spécifie une opération de mise en veille personnalisée"
-  ["HoldoffTimeoutSec"]="Délai avant une action critique système"
-  ["RuntimeDirectorySize"]="Taille maximale des répertoires temporaires /run"
-  ["RuntimeDirectoryInodesMax"]="Nombre maximum d'inodes dans /run"
-  ["RemoveIPC"]="Supprimer la mémoire IPC à la déconnexion"
-  ["InhibitorsMax"]="Nombre maximum d'inhibiteurs"
-  ["SessionsMax"]="Nombre maximal de sessions utilisateur"
-  ["StopIdleSessionSec"]="Temps avant fermeture d'une session inactive"
-  ["DesignatedMaintenanceTime"]="Heure désignée pour maintenance planifiée"
+  ["LidSwitchIgnoreInhibited"]="Ignore les inhibitions de capot (ex: vidéos plein écran) : yes/no"
+  ["PowerKeyIgnoreInhibited"]="Ignore les inhibitions du bouton d'alimentation : yes/no"
+  ["SuspendKeyIgnoreInhibited"]="Ignore les inhibitions de la touche de suspension : yes/no"
+  ["HibernateKeyIgnoreInhibited"]="Ignore les inhibitions de la touche d'hibernation : yes/no"
+  ["RebootKeyIgnoreInhibited"]="Ignore les inhibitions de la touche de redémarrage : yes/no"
+  ["NAutoVTs"]="Nombre de consoles virtuelles à créer automatiquement (entier)"
+  ["ReserveVT"]="Quel TTY est réservé pour Xorg (entier)"
+  ["KillUserProcesses"]="Tue les processus utilisateur à la fermeture de session : yes/no"
+  ["KillOnlyUsers"]="Utilisateurs affectés par KillUserProcesses (liste de noms)"
+  ["KillExcludeUsers"]="Utilisateurs exclus de KillUserProcesses (liste de noms)"
+  ["InhibitDelayMaxSec"]="Délai maximal autorisé avant action inhibée (durée)"
+  ["UserStopDelaySec"]="Délai avant arrêt des sessions utilisateur (durée ou infinity)"
+  ["SleepOperation"]="Spécifie une opération de mise en veille personnalisée (suspend, hibernate, hybrid-sleep, suspend-then-hibernate)"
+  ["HoldoffTimeoutSec"]="Délai avant une action critique système (durée)"
+  ["RuntimeDirectorySize"]="Taille maximale des répertoires temporaires /run (ex: 10M, 20%)"
+  ["RuntimeDirectoryInodesMax"]="Nombre maximum d'inodes dans /run (entier)"
+  ["RemoveIPC"]="Supprimer la mémoire IPC à la déconnexion : yes/no"
+  ["InhibitorsMax"]="Nombre maximum d'inhibiteurs (entier)"
+  ["SessionsMax"]="Nombre maximal de sessions utilisateur (entier)"
+  ["StopIdleSessionSec"]="Temps avant fermeture d'une session inactive (durée ou infinity)"
+  ["DesignatedMaintenanceTime"]="Heure désignée pour maintenance planifiée (format calendar systemd)"
 )
-
 # === VARIABLES GLOBALES À INITIALISER ===
 AVAILABLE_KEYS=()
 MISSING_KEYS=()
@@ -403,11 +409,16 @@ set_parameter() {
     # Afficher des informations supplémentaires selon le type de paramètre
     if [[ "$key" == *"delay"* || "$key" == *"timeout"* ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}entier (secondes)${NC}"
-      echo -e "${DIM}Exemples: 60 (1 minute), 300 (5 minutes), 1800 (30 minutes), 3600 (1 heure)${NC}"
+      echo -e "${DIM}Exemples: 60 (1 minute), 300 (5 minutes), 1800 (30 minutes), 3600 (1 heure), 0 (désactivé)${NC}"
     elif [[ "$key" == *"type"* || "$key" == *"action"* ]]; then
-      echo -e "${YELLOW}Type attendu : ${UNDERLINE}chaîne${NC}"
-      echo -e "${DIM}Valeurs typiques: suspend, hibernate, nothing, poweroff, interactive${NC}"
-    elif [[ "$key" == *"enabled"* || "$key" == *"-dim" ]]; then
+      if [[ "$key" == *"power-button-action"* ]]; then
+        echo -e "${YELLOW}Type attendu : ${UNDERLINE}chaîne${NC}"
+        echo -e "${DIM}Valeurs possibles: nothing, suspend, hibernate, poweroff, interactive${NC}"
+      else
+        echo -e "${YELLOW}Type attendu : ${UNDERLINE}chaîne${NC}"
+        echo -e "${DIM}Valeurs possibles: nothing, suspend, hibernate, poweroff, shutdown${NC}"
+      fi
+    elif [[ "$key" == *"enabled"* || "$key" == *"-dim" || "$key" == *"suspend-with-external-monitor"* ]]; then
       echo -e "${YELLOW}Type attendu : ${UNDERLINE}booléen${NC}"
       echo -e "${DIM}Valeurs: true, false${NC}"
     elif [[ "$key" == *"brightness"* ]]; then
@@ -640,19 +651,21 @@ show_tips() {
   echo -e "  - Sur secteur: timeouts plus longs ou 'nothing'"
   echo
   
-  echo -e "${BOLD}${UNDERLINE}Configuration recommandée pour un portable:${NC}"
+    echo -e "${BOLD}${UNDERLINE}Configuration recommandée pour un portable:${NC}"
   echo -e "${CYAN}sleep-inactive-battery-timeout = 600${NC} (10 minutes)"
   echo -e "${CYAN}sleep-inactive-battery-type = suspend${NC}"
   echo -e "${CYAN}sleep-inactive-ac-timeout = 1800${NC} (30 minutes)"
   echo -e "${CYAN}sleep-inactive-ac-type = suspend${NC}"
   echo -e "${CYAN}lid-close-battery-action = suspend${NC}"
   echo -e "${CYAN}lid-close-ac-action = suspend${NC}"
+  echo -e "${CYAN}lid-close-suspend-with-external-monitor = false${NC}"
   echo
   
   echo -e "${BOLD}${UNDERLINE}Configuration recommandée pour un PC fixe:${NC}"
   echo -e "${CYAN}sleep-inactive-ac-timeout = 3600${NC} (1 heure)"
   echo -e "${CYAN}sleep-inactive-ac-type = suspend${NC}"
   echo -e "${CYAN}power-button-action = interactive${NC}"
+  echo -e "${CYAN}idle-dim = true${NC}"
   echo
   
   read -p "$(echo -e "${DIM}Appuyer sur Entrée pour revenir au menu principal...${NC}")"
