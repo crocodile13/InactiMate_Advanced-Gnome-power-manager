@@ -876,11 +876,7 @@ check_requirements() {
 show_banner() {
   clear
   echo -e "${BLUE}"
-  echo "  ___        _ _ _   _                     _'_     _            _   _ _   _ "
-  echo " |_ _|_ _   / \/ |_(_)_ __   __ _ ___   _(_) |_  | |_ ___  ___| |_| | | | |"
-  echo "  | || ' \ / _ \ __| | '_ \ / _\` / __| / _ \| __| | __/ _ \/ __| __| | | | |"
-  echo "  | || | |/ ___ \|_| | | | | (_| \__ \| (_) | |_  | ||  __/ (__| |_|_|_|_|_|"
-  echo " |___|_|_/_/   \_(_)_|_| |_|\__,_|___/ \___/ \__|  \__\___|\___|\__(_|_|_(_)"
+  echo -e "┌────────────────────┐\n│Don't buy me coffee.│\n└────────────────────┘"
   echo -e "${NC}"
   echo -e "${BOLD}Gestionnaire de politiques d'inactivité pour Linux v${VERSION}${NC}"
   echo -e "${DIM}Configurez facilement vos paramètres d'économie d'énergie${NC}"
